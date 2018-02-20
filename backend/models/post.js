@@ -9,7 +9,10 @@ var PostSchema =  new mongoose.Schema({
 		required: true,
 		type: String
 	},
-
+	title: {
+		required: true,
+		type: String
+	},
 	owner: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'

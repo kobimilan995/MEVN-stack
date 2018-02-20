@@ -2,8 +2,12 @@
 	<div>
 	<form @submit.prevent="addPost">
 	  <div class="form-group">
+	    <label for="exampleInputEmail1">Add post title</label>
+	    <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter posts title" v-model="postTitle">
+	  </div>
+	  <div class="form-group">
 	    <label for="exampleInputEmail1">Add post content</label>
-	    <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter post" v-model="postContent">
+	    <textarea type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter post" v-model="postContent"></textarea>
 	  </div>
 	  <button type="submit" class="btn btn-primary">Add post</button>
 	</form>
@@ -11,12 +15,18 @@
 	<div>
 		<div v-for="(post, index) in posts" class="card" style="margin-top: 15px;">
 		  <div class="card-header"><h3 style="display: inline;">{{post.owner.email}}</h3> <a href="#"><i class="fa fa-close pull-right" @click="deletePost"></i></a></div>
-		  <div class="card-body"><p>{{post.content}}</p></div>
+		  <div class="card-body">
+		  	<h5>
+		  		{{post.title}}
+		  	</h5>
+		  </div>
 		  <div class="card-footer">
-		  	<button v-if="!isLiked(post)" class="btn btn-primary" @click="likePost(post._id, index)">Like</button> 
+		  	<!-- <button v-if="!isLiked(post)" class="btn btn-primary" @click="likePost(post._id, index)">Like</button> 
 		  	<button v-else class="btn btn-primary" @click="dislikePost(post._id, index)">Unlike</button> 
 			<p style="display: inline; margin-left: 20px">{{post.likes.length}} likes</p>
-		  	<p class="pull-right">{{difForHumans(post.created_at)}}</p></div>
+		  	<p class="pull-right">{{difForHumans(post.created_at)}}</p></div> -->
+		  	<button class="btn btn-primary" @click="viewMore(post)">View more</button>
+		  </div>
 		</div>
 	</div>
 	</div>
@@ -27,14 +37,19 @@
 		data() {
 			return {
 				postContent: '',
+				postTitle: '',
 				showLoading: false
 			}
 		},
 		methods: {
+			viewMore(post) {
+				this.$router.push('/post/'+post._id);
+			},
 			addPost() {
 				console.log('asd');
 				this.axios.post('http://localhost:3001/api/post', {
-					content: this.postContent
+					content: this.postContent,
+					title: this.postTitle
 				}, {
 				    headers: { authorization: localStorage.getItem('jwt') }
 				}).then(response => {
@@ -57,53 +72,42 @@
 					console.log(error);
 				});
 			},
-			likePost(postId, index) {
-				this.axios.post('http://localhost:3001/api/post/like', {
-					post_id: postId
-				}, {
-				    headers: { authorization: localStorage.getItem('jwt') }
-				}).then(response => {
-					console.log(response);
-					if(response.data.type == 'success') {
-						this.$store.commit('posts/ADD_LIKE', {
-							post_index: index,
-							like: response.data.like
-						});
-					}
-				}).catch(error => {
-					console.log(error);
-				});
-			},
+			// likePost(postId) {
+			// 	this.axios.post('http://localhost:3001/api/post/like', {
+			// 		post_id: postId
+			// 	}, {
+			// 	    headers: { authorization: localStorage.getItem('jwt') }
+			// 	}).then(response => {
+			// 		console.log(response);
+			// 		if(response.data.type == 'success') {
+			// 			this.$store.commit('posts/ADD_LIKE', {
+			// 				post_index: index,
+			// 				like: response.data.like
+			// 			});
+			// 		}
+			// 	}).catch(error => {
+			// 		console.log(error);
+			// 	});
+			// },
 
-			dislikePost(postId, index) {
-				this.axios.post('http://localhost:3001/api/post/dislike', {
-					post_id: postId
-				}, {
-				    headers: { authorization: localStorage.getItem('jwt') }
-				}).then(response => {
-					console.log(response);
-					if(response.data.type == 'success') {
-						this.$store.commit('posts/REMOVE_LIKE', {
-							post_index: index,
-							postId: postId,
-							userId: this.loggedUser._id
-						});
-					}
-				}).catch(error => {
-					console.log(error);
-				});
-			},
-
-			isLiked(post) {
-				var returnValue = false;
-				post.likes.forEach(like => {
-					console.log('loggedEmail',like.likeOwner.email == this.loggedUser.email );
-					if(like.likeOwner.email == this.loggedUser.email) {
-						returnValue = true;
-					}
-				});
-				return returnValue;
-			},
+			// dislikePost(postId, index) {
+			// 	this.axios.post('http://localhost:3001/api/post/dislike', {
+			// 		post_id: postId
+			// 	}, {
+			// 	    headers: { authorization: localStorage.getItem('jwt') }
+			// 	}).then(response => {
+			// 		console.log(response);
+			// 		if(response.data.type == 'success') {
+			// 			this.$store.commit('posts/REMOVE_LIKE', {
+			// 				post_index: index,
+			// 				postId: postId,
+			// 				userId: this.loggedUser._id
+			// 			});
+			// 		}
+			// 	}).catch(error => {
+			// 		console.log(error);
+			// 	});
+			// },
 			difForHumans(createdAt) {
 				return moment(createdAt).fromNow();
 			},

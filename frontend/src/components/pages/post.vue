@@ -1,0 +1,118 @@
+<template>
+	<div class="card" style="margin-top: 15px;" v-if="!showLoading">
+	  <div class="card-header"><h3 style="display: inline;">{{post.owner.email}}</h3> <a href="#"><i class="fa fa-close pull-right" @click="deletePost"></i></a></div>
+	  <div class="card-body">
+	  	<h5>
+	  		{{post.title}}
+	  	</h5>
+	  	<p>
+	  		{{post.content}}
+	  	</p>
+	  </div>
+	  <div class="card-footer">
+	  	<button v-if="!isLiked(post)" class="btn btn-primary" @click="likePost()">Like</button> 
+	  	<button v-else class="btn btn-primary" @click="dislikePost()">Unlike</button> 
+		<p style="display: inline; margin-left: 20px">{{post.likes.length}} likes</p>
+	  	<p class="pull-right">{{difForHumans(post.created_at)}}</p></div>
+	  </div>
+	</div>
+</template>
+
+<script>
+	export default {
+		props: {
+			postId: {
+				required: true
+			}
+		},
+
+		data() {
+			return {
+				post: {},
+				showLoading: true
+			}
+		},
+		methods: {
+			getPost() {
+				this.axios.get('http://localhost:3001/api/post?post='+this.postId, {
+				    headers: { 
+				    	authorization: localStorage.getItem('jwt') 
+				    }
+				}).then(response => {
+					console.log(response.data);
+					this.post = response.data;
+					this.showLoading = false;
+				}).catch(error => {
+					console.log(error);
+				});
+			},
+			likePost() {
+				console.log('likePost');
+			},
+
+			dislikePost() {
+				console.log('dislikePost');
+			},
+
+			deletePost() {
+
+			},
+			difForHumans(createdAt) {
+				return moment(createdAt).fromNow();
+			},
+
+			isLiked(post) {
+				return false;
+			},
+			likePost() {
+				this.axios.post('http://localhost:3001/api/post/like', {
+					post_id: this.postId
+				}, {
+				    headers: { authorization: localStorage.getItem('jwt') }
+				}).then(response => {
+					this.post.likes.push(response.data.like);
+				}).catch(error => {
+					console.log(error);
+				});
+			},
+			dislikePost() {
+				this.axios.post('http://localhost:3001/api/post/dislike', {
+					post_id: this.postId
+				}, {
+				    headers: { authorization: localStorage.getItem('jwt') }
+				}).then(response => {
+					console.log(response);
+					if(response.data.type == 'success') {
+						this.post.likes.forEach((like, index) => {
+							if(like.likeOwner._id == this.loggedUser._id) {
+								this.post.likes.splice(index, 1);
+							}
+						});
+					}
+				}).catch(error => {
+					console.log(error);
+				});
+			},
+
+			isLiked(post) {
+				var returnValue = false;
+				post.likes.forEach(like => {
+					console.log('loggedEmail',like.likeOwner.email == this.loggedUser.email );
+					if(like.likeOwner.email == this.loggedUser.email) {
+						returnValue = true;
+					}
+				});
+				return returnValue;
+			}
+		},
+		created() {
+			this.getPost();
+		},
+
+		computed: {
+			loggedUser() {
+				return JSON.parse(localStorage.getItem('authUser'));
+			}
+		}
+	}
+</script>

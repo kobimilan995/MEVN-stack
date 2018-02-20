@@ -7,12 +7,13 @@ const _ = require('lodash');
 const authenticate = require('../middleware/authenticated.js');
 module.exports = function(app){
     app.get('/api/test', (req, res) => {
-    	console.log(req.body);
+    	console.log(JSON.stringify(req, undefined, 2));
+        res.send(req.query.post);
     });
 
     //add post
     app.post('/api/post', authenticate, (req, res) => {
-    	var body = _.pick(req.body, ['content']);
+    	var body = _.pick(req.body, ['content', 'title']);
         // body.ownersName = req.user.username;
         // body.ownersId = req.user.id;
         body.owner = new ObjectID(req.user.id);
@@ -28,6 +29,14 @@ module.exports = function(app){
     	}).catch(error => {
 
     	});
+    });
+    //get post
+    app.get('/api/post', authenticate, (req, res) => {
+        Post.findById(req.query.post).populate('owner').then(response => {
+            res.send(response);
+        }).catch(error => {
+            console.log(error);
+        });
     });
     //get posts
     app.get('/api/posts', authenticate, (req, res) => {
