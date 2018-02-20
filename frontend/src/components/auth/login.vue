@@ -29,7 +29,7 @@
 		methods: {
 			login() {
 				this.showLoading = true;
-				this.axios.post('http://localhost:3000/users/login', {
+				this.axios.post('http://localhost:3001/users/login', {
 					email: this.email,
 					password: this.password
 				}).then(response => {
@@ -41,12 +41,6 @@
 				}).catch(error => {
 					console.log(error);
 				});
-			}
-		},
-
-		created() {
-			if(this.$store.state.authCheck) {
-				this.$router.push('/dashboard');
 			}
 		}
 	}

@@ -1,4 +1,5 @@
 import Vuex from 'vuex';
+import posts from './modules/posts';
 const store = new Vuex.Store({
   state: {
     authCheck: !!localStorage.getItem("jwt")
@@ -12,6 +13,9 @@ const store = new Vuex.Store({
   		localStorage.setItem("jwt", data.jwt);
   		state.authCheck = true;
   	}
+  },
+  modules: {
+    posts
   }
 });
 

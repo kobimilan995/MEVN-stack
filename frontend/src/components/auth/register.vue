@@ -34,7 +34,7 @@
 		methods: {
 			register() {
 				this.showLoading = true;
-				this.axios.post('http://localhost:3000/users/register', {
+				this.axios.post('http://localhost:3001/users/register', {
 					email: this.email,
 					password: this.password,
 					username: this.username
@@ -48,11 +48,6 @@
 				}).catch(error => {
 					console.log(error);
 				});
-			}
-		},
-		created() {
-			if(this.$store.state.authCheck) {
-				this.$router.push('/dashboard');
 			}
 		}
 	}

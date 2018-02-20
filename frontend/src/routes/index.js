@@ -3,10 +3,12 @@ import About from '../components/pages/about.vue';
 import Login from '../components/auth/login.vue';
 import Register from '../components/auth/register.vue';
 const routes = [
-	{ path: '/home', component: Home },
-	{ path: '/about', component: About },
-	{ path: '/login', component: Login },
-	{ path: '/register', component: Register },
+	{ name:'home', path: '/home', component: Home },
+	{ name:'about',path: '/about', component: About, meta: {
+		auth: true
+	} },
+	{ name:'login',path: '/login',  component: Login },
+	{ name:'register', path: '/register', component: Register }
 ]
 
 export default routes;

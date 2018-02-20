@@ -35,7 +35,7 @@
 		methods: {
 			logout() {
 				console.log(localStorage.getItem('jwt'));
-				this.axios.delete('http://localhost:3000/users/me/token',  {
+				this.axios.delete('http://localhost:3001/users/me/token',  {
 					headers: {
 						'authorization':localStorage.getItem('jwt')
 					}

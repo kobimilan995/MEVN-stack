@@ -10,13 +10,14 @@ var {mongoose} = require('./db/mongoose');
 
 var app = express();
 app.use(cors());
-const port = process.env.PORT || 3000;
+const port =  3001;
 app.use(bodyParser.json());
 app.use((req,res,next) => {
 	res.header("Access-Control-Expose-Headers", "authorization");
 	next();
 });
 require('./routes')(app);
+require('./routes/api')(app);
 
 
 
