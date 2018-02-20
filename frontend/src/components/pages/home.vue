@@ -9,10 +9,14 @@
 	</form>
 	<i v-if="showLoading" class="fa fa-spinner fa-pulse fa-1x fa-fw"></i>
 	<div>
-		<div v-for="post in posts" class="card" style="margin-top: 15px;">
-		  <div class="card-header"><h3 style="display: inline;">{{post.ownersName}}</h3> <a href="#"><i class="fa fa-close pull-right" @click="deletePost"></i></a></div>
+		<div v-for="(post, index) in posts" class="card" style="margin-top: 15px;">
+		  <div class="card-header"><h3 style="display: inline;">{{post.owner.email}}</h3> <a href="#"><i class="fa fa-close pull-right" @click="deletePost"></i></a></div>
 		  <div class="card-body"><p>{{post.content}}</p></div>
-		  <div class="card-footer"> <a href=""><i class="fa fa-thumbs-up"></i></a>  <p class="pull-right">{{difForHumans(post.created_at)}}</p></div>
+		  <div class="card-footer">
+		  	<button v-if="!isLiked(post)" class="btn btn-primary" @click="likePost(post._id, index)">Like</button> 
+		  	<button v-else class="btn btn-primary" @click="dislikePost(post._id, index)">Unlike</button> 
+			<p style="display: inline; margin-left: 20px">{{post.likes.length}} likes</p>
+		  	<p class="pull-right">{{difForHumans(post.created_at)}}</p></div>
 		</div>
 	</div>
 	</div>
@@ -53,6 +57,53 @@
 					console.log(error);
 				});
 			},
+			likePost(postId, index) {
+				this.axios.post('http://localhost:3001/api/post/like', {
+					post_id: postId
+				}, {
+				    headers: { authorization: localStorage.getItem('jwt') }
+				}).then(response => {
+					console.log(response);
+					if(response.data.type == 'success') {
+						this.$store.commit('posts/ADD_LIKE', {
+							post_index: index,
+							like: response.data.like
+						});
+					}
+				}).catch(error => {
+					console.log(error);
+				});
+			},
+
+			dislikePost(postId, index) {
+				this.axios.post('http://localhost:3001/api/post/dislike', {
+					post_id: postId
+				}, {
+				    headers: { authorization: localStorage.getItem('jwt') }
+				}).then(response => {
+					console.log(response);
+					if(response.data.ok == '1') {
+						this.$store.commit('posts/REMOVE_LIKE', {
+							post_index: index,
+							postId: postId,
+							userId: this.loggedUser._id
+						});
+					}
+				}).catch(error => {
+					console.log(error);
+				});
+			},
+
+			isLiked(post) {
+				var returnValue = false;
+				post.likes.forEach(like => {
+					console.log('loggedEmail',like.owner.email == this.loggedUser.email );
+					if(like.owner.email == this.loggedUser.email) {
+						returnValue = true;
+					}
+				});
+				return returnValue;
+			},
 			difForHumans(createdAt) {
 				return moment(createdAt).fromNow();
 			},
@@ -64,6 +115,9 @@
 		computed: {
 			posts() {
 				return this.$store.state.posts.posts;
+			},
+			loggedUser() {
+				return JSON.parse(localStorage.getItem('authUser'));
 			}
 		},
 

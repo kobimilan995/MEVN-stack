@@ -11,6 +11,7 @@ const store = new Vuex.Store({
   	},
   	LOGIN(state, data) {
   		localStorage.setItem("jwt", data.jwt);
+      localStorage.setItem("authUser", JSON.stringify(data.user));
   		state.authCheck = true;
   	}
   },
