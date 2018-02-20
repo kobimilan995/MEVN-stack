@@ -10,7 +10,26 @@ module.exports = function(app){
     	console.log(JSON.stringify(req, undefined, 2));
         res.send(req.query.post);
     });
+    //add comment
+    app.post('/api/post/comment/add', authenticate, (req, res) => {
+        var body = _.pick(req.body, ['content']);
+        var comment = {
+            moment_timestamp: moment(),
+            commentOwner: req.user,
+            content: body.content
+        }
 
+        var post = Post.findById(req.body.post_id).then(post => {
+            post.comments.push(comment);
+            post.save().then(post => {
+                res.send(comment);
+            }).catch(error => {
+                res.send(error);
+            });
+        }).catch(error => {
+            res.send(error);
+        });
+    });
     //add post
     app.post('/api/post', authenticate, (req, res) => {
     	var body = _.pick(req.body, ['content', 'title']);

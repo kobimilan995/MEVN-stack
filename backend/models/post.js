@@ -44,6 +44,27 @@ var PostSchema =  new mongoose.Schema({
 				type: String
 			}
 		}
+	}],
+	comments: [{
+		moment_timestamp: {
+			type: String,
+			required: true
+		},
+		content: {
+			type: String,
+			required: true
+		},
+		commentOwner: {
+			_id: {
+				type: mongoose.Schema.Types.ObjectId
+			},
+			email: {
+				type: String
+			},
+			username: {
+				type: String
+			}
+		}
 	}]
 }, { usePushEach: true });
 var Post = mongoose.model('Post', PostSchema);

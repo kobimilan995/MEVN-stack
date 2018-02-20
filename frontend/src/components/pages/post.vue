@@ -1,20 +1,36 @@
 <template>
-	<div class="card" style="margin-top: 15px;" v-if="!showLoading">
-	  <div class="card-header"><h3 style="display: inline;">{{post.owner.email}}</h3> <a href="#"><i class="fa fa-close pull-right" @click="deletePost"></i></a></div>
-	  <div class="card-body">
-	  	<h5>
-	  		{{post.title}}
-	  	</h5>
-	  	<p>
-	  		{{post.content}}
-	  	</p>
-	  </div>
-	  <div class="card-footer">
-	  	<button v-if="!isLiked(post)" class="btn btn-primary" @click="likePost()">Like</button> 
-	  	<button v-else class="btn btn-primary" @click="dislikePost()">Unlike</button> 
-		<p style="display: inline; margin-left: 20px">{{post.likes.length}} likes</p>
-	  	<p class="pull-right">{{difForHumans(post.created_at)}}</p></div>
-	  </div>
+	<div>
+		<div class="card" style="margin-top: 15px;" v-if="!showLoading">
+		  <div class="card-header"><h3 style="display: inline;">{{post.owner.email}}</h3> <a href="#"><i class="fa fa-close pull-right" @click="deletePost"></i></a></div>
+		  <div class="card-body">
+		  	<h5>
+		  		{{post.title}}
+		  	</h5>
+		  	<p>
+		  		{{post.content}}
+		  	</p>
+		  </div>
+		  <div class="card-footer">
+		  	<button v-if="!isLiked(post)" class="btn btn-primary" @click="likePost()">Like</button> 
+		  	<button v-else class="btn btn-primary" @click="dislikePost()">Unlike</button> 
+			<p style="display: inline; margin-left: 20px">{{post.likes.length}} likes</p>
+			<p style="display: inline; margin-left: 20px">{{post.comments.length}} comments</p>
+		  	<p class="pull-right">{{difForHumans(post.created_at)}}</p></div>
+		  </div>
+		  <form @submit.prevent="addComment()">
+			<div class="form-group">
+			  <label for="exampleFormControlTextarea1">Comment:</label>
+			  <input class="form-control" id="exampleFormControlTextarea1" rows="3" v-model="commentContent">
+			</div>
+		  </form>
+		<div class="card" v-for="comment in post.comments">
+		  <div class="card-body">
+		    <blockquote class="blockquote mb-0">
+		      <p>{{comment.content}}</p>
+		      <footer class="blockquote-footer">{{comment.commentOwner.email}} <cite title="Source Title">commented {{difForHumans(comment.moment_timestamp)}}</cite></footer>
+		    </blockquote>
+		  </div>
+		</div>
 	</div>
 </template>
 
@@ -29,10 +45,23 @@
 		data() {
 			return {
 				post: {},
-				showLoading: true
+				showLoading: true,
+				commentContent: ''
 			}
 		},
 		methods: {
+			addComment(){
+				this.axios.post('http://localhost:3001/api/post/comment/add', {
+					post_id: this.postId,
+					content: this.commentContent
+				}, {
+					headers: { 
+				    	authorization: localStorage.getItem('jwt') 
+				    }
+				}).then(response => {
+					this.post.comments.push(response.data);
+				});
+			},
 			getPost() {
 				this.axios.get('http://localhost:3001/api/post?post='+this.postId, {
 				    headers: { 
