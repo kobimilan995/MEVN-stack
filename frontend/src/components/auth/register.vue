@@ -41,7 +41,8 @@
 				}).then(response => {
 					console.log(response.headers);
 					this.$store.commit('LOGIN', {
-						jwt: response.headers.authorization
+						jwt: response.headers.authorization,
+						user: response.data
 					});
 					this.$router.push('/dashboard');
 					this.showLoading = false;

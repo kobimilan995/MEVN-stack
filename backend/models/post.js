@@ -26,8 +26,21 @@ var PostSchema =  new mongoose.Schema({
 	},
 
 	likes: [{
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Like'
+		moment_timestamp: {
+			type: String,
+			required: true
+		},
+		likeOwner: {
+			_id: {
+				type: mongoose.Schema.Types.ObjectId
+			},
+			email: {
+				type: String
+			},
+			username: {
+				type: String
+			}
+		}
 	}]
 }, { usePushEach: true });
 var Post = mongoose.model('Post', PostSchema);

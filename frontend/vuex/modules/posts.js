@@ -11,11 +11,8 @@ const mutations = {
 	},
 
 	REMOVE_LIKE(state, data) {
-		console.log('data', data);
 		state.posts[data.post_index].likes.forEach((like, index) => {
-			console.log('likeOwner', like.owner);
-			console.log('likePost', like.post);
-			if(like.owner._id == data.userId && like.post == data.postId) {
+			if(like.likeOwner._id == data.userId) {
 				state.posts[data.post_index].likes.splice(index, 1);
 				return;
 			}

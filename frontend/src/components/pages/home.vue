@@ -82,7 +82,7 @@
 				    headers: { authorization: localStorage.getItem('jwt') }
 				}).then(response => {
 					console.log(response);
-					if(response.data.ok == '1') {
+					if(response.data.type == 'success') {
 						this.$store.commit('posts/REMOVE_LIKE', {
 							post_index: index,
 							postId: postId,
@@ -97,8 +97,8 @@
 			isLiked(post) {
 				var returnValue = false;
 				post.likes.forEach(like => {
-					console.log('loggedEmail',like.owner.email == this.loggedUser.email );
-					if(like.owner.email == this.loggedUser.email) {
+					console.log('loggedEmail',like.likeOwner.email == this.loggedUser.email );
+					if(like.likeOwner.email == this.loggedUser.email) {
 						returnValue = true;
 					}
 				});
