@@ -20,6 +20,7 @@
 	    </ul>
 	    <ul class="nav navbar-nav navbar-right" v-if="isAuthenticated">
 	      <li class="nav-item"><a href="#" @click="logout" class="nav-link">Log Out</a></li>
+	      <li class="nav-item" style="margin-left: 50px"><p>{{authUser.email}}</p></li>
 	    </ul>
 	  </div>
 	</nav>
@@ -53,6 +54,12 @@
 		computed: {
 			isAuthenticated() {
 				return this.$store.state.authCheck;
+			},
+
+			authUser() {
+				if(this.$store.state.authCheck) {
+					return JSON.parse(localStorage.getItem('authUser'));
+				}
 			}
 		}
 	}
