@@ -10,6 +10,42 @@ module.exports = function(app){
     	console.log(JSON.stringify(req, undefined, 2));
         res.send(req.query.post);
     });
+    //follow user
+    app.post('/api/user/follow', authenticate, (req, res) => {
+        User.findOne({_id: req.body.user}).populate('followers').then(user => {
+            user.followers.push(req.user._id);
+            user.save().then(response => {
+                res.send(user);
+            }).catch(error => {
+                res.send(error);
+            });
+        }).catch(error => {
+            console.log(error);
+            res.send(error);
+        });
+    });
+    //uollow user
+    app.post('/api/user/unfollow', authenticate, (req, res) => {
+        User.findOne({_id: req.body.user}).populate('followers').then(user => {
+            user.followers.push(req.user._id);
+            user.save().then(response => {
+                res.send(user);
+            }).catch(error => {
+                res.send(error);
+            });
+        }).catch(error => {
+            console.log(error);
+            res.send(error);
+        });
+    });
+    //get all users
+    app.get('/api/users', authenticate, (req, res) => {
+        User.find().populate('followers').then(response => {
+            res.send(response);
+        }).catch(error => {
+            res.send(error);
+        });
+    });
     //add comment
     app.post('/api/post/comment/add', authenticate, (req, res) => {
         var body = _.pick(req.body, ['content']);
@@ -26,6 +62,27 @@ module.exports = function(app){
             }).catch(error => {
                 res.send(error);
             });
+        }).catch(error => {
+            res.send(error);
+        });
+    });
+    //delete category 
+    //kaskadno brisemo sve proizvode koji pripadaju datoj kategoriji ( potrebno dva querija )
+    app.delete('/api/category/delete', authenticate, (req, res) => {
+        Category.remove({_id: req.query.category}).then(response => {
+            Post.remove({category: req.query.category}).then(response => {
+                res.send(response);
+            }).catch(error => {
+                res.send(error);
+            });
+        }).catch(error => {
+            res.send(error);
+        });
+    });
+    //delete post
+    app.delete('/api/post/delete', authenticate, (req, res) => {
+        Post.remove({_id: req.query.post}).then(response => {
+            res.send(response);
         }).catch(error => {
             res.send(error);
         });
@@ -135,12 +192,6 @@ module.exports = function(app){
 
     app.post('/api/post/dislike', authenticate, (req, res) => {
         Post.findById(req.body.post_id).then(post => {
-            // post.likes.forEach((like, index) => {
-            //     if(like.likeOwner._id == req.user.id) {
-            //         post.likes.splice(index, 1);
-            //         break;
-            //     }
-            // });
             for (var i = 0; i < post.likes.length; i++) {
                 if(post.likes[i].likeOwner._id == req.user.id) {
                     post.likes.splice(i, 1);

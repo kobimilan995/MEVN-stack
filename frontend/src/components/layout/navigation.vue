@@ -16,6 +16,9 @@
 	      <li class="nav-item">
 	        <router-link class="nav-link" to="/categories" href="#">Categories</router-link>
 	      </li>
+	      <li class="nav-item">
+	        <router-link class="nav-link" to="/users" href="#">Users</router-link>
+	      </li>
 	    </ul>
 	    <ul class="nav navbar-nav navbar-right" v-if="!isAuthenticated">
 	      <li class="nav-item"><router-link href="" to="/register" class="nav-link">Sign Up</router-link></li>

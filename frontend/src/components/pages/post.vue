@@ -1,7 +1,26 @@
 <template>
 	<div>
+		<div class="modal fade" id="areUSure">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title">You are about to delete this post:  {{post.title}}</h5>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		        <p>Are you sure?</p>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" @click="deletePost">Yes</button>
+		        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
 		<div class="card" style="margin-top: 15px;" v-if="!showLoading">
-		  <div class="card-header"><h3 style="display: inline;">{{post.owner.email}}</h3> <a href="#"><i class="fa fa-close pull-right" @click="deletePost"></i></a></div>
+		  <div class="card-header"><h3 style="display: inline;">{{post.owner.email}}</h3> <a href="#"><i class="fa fa-close pull-right" data-toggle="modal" data-target="#areUSure"></i></a></div>
 		  <div class="card-body">
 		  	<h5>
 		  		{{post.title}}
@@ -86,7 +105,14 @@
 			},
 
 			deletePost() {
-
+				this.axios.delete('http://localhost:3001/api/post/delete?post='+this.post._id,{
+				    headers: { authorization: localStorage.getItem('jwt') }
+				}).then(response => {
+					console.log(response);
+					this.$router.push('/home');
+				}).catch(error => {
+					console.log(error);
+				});
 			},
 			difForHumans(createdAt) {
 				return moment(createdAt).fromNow();

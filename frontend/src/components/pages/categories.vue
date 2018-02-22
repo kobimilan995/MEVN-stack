@@ -1,5 +1,24 @@
 <template>
 	<div>
+		<div class="modal fade" id="areUSure">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title">You are about to delete this categogry:  {{categoryToBeDeleted.title}}</h5>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		        <p>Are you sure?</p>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" @click="deleteCategory">Yes</button>
+		        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
 	<form @submit.prevent="addCategory">
 	  <div class="form-group">
 	    <label for="exampleInputEmail1">Add category title</label>
@@ -14,7 +33,7 @@
 	<i v-if="showLoading" class="fa fa-spinner fa-pulse fa-1x fa-fw"></i>
 	<div>
 		<div v-for="(category, index) in categories" class="card" style="margin-top: 15px;">
-		  <div class="card-header"><h3 style="display:inline;">{{category.title}}</h3><a href="#"><i class="fa fa-close pull-right" @click="deleteCategory(category)"></i></a></div>
+		  <div class="card-header"><h3 style="display:inline;">{{category.title}}</h3><a href="#" @click="setCategoryToBeDeleted(category)" data-toggle="modal" data-target="#areUSure"><i class="fa fa-close pull-right"></i></a></div>
 		  <div class="card-body">
 		  	<h5>
 		  		{{category.description}}
@@ -39,7 +58,8 @@
 				categoryTitle: '',
 				categoryDescription: '',
 				showLoading: false,
-				categories: []
+				categories: [],
+				categoryToBeDeleted: {}
 			}
 		},
 
@@ -58,12 +78,21 @@
 					console.log(error);
 				});
 			},
-
+			setCategoryToBeDeleted(category) {
+				this.categoryToBeDeleted = category;
+			},
 			viewPosts(category) {
 				this.$router.push('/category/'+category._id);
 			},
-			deleteCategory(category) {
-
+			deleteCategory() {
+				this.axios.delete('http://localhost:3001/api/category/delete?category='+this.categoryToBeDeleted._id,{
+				    headers: { authorization: localStorage.getItem('jwt') }
+				}).then(response => {
+					console.log(response);
+					this.categories.splice(this.categories.indexOf(this.categoryToBeDeleted), 1);
+				}).catch(error => {
+					console.log(error);
+				});
 			},
 			getCategories() {
 				this.axios.get('http://localhost:3001/api/categories', {

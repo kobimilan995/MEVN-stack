@@ -1,5 +1,24 @@
 <template>
 	<div>
+		<div class="modal fade" id="areUSure">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title">You are about to delete this post:  {{postToBeDeleted.title}}</h5>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		        <p>Are you sure?</p>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-primary" data-dismiss="modal" @click="deletePost">Yes</button>
+		        <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
 	<form @submit.prevent="addPost">
 	  <div class="form-group">
 	    <label for="exampleInputEmail1">Add post title</label>
@@ -20,7 +39,7 @@
 	<i v-if="showLoading" class="fa fa-spinner fa-pulse fa-1x fa-fw"></i>
 	<div>
 		<div v-for="(post, index) in posts" class="card" style="margin-top: 15px;">
-		  <div class="card-header"><h3 style="display: inline;">{{post.owner.email}}</h3> <a href="#"><i class="fa fa-close pull-right" @click="deletePost"></i></a></div>
+		  <div class="card-header"><h3 style="display: inline;">{{post.owner.email}}</h3> <a href="#" data-toggle="modal" data-target="#areUSure" @click="addPostToBeDeleted(post)"><i class="fa fa-close pull-right"></i></a></div>
 		  <div class="card-body">
 		  	<h5>
 		  		{{post.title}}
@@ -47,12 +66,16 @@
 				postTitle: '',
 				showLoading: false,
 				categories: [],
-				categoryId: ''
+				categoryId: '',
+				postToBeDeleted: {}
 			}
 		},
 		methods: {
 			viewMore(post) {
 				this.$router.push('/post/'+post._id);
+			},
+			addPostToBeDeleted(post) {
+				this.postToBeDeleted = post;
 			},
 			addPost() {
 				this.axios.post('http://localhost:3001/api/post', {
@@ -64,6 +87,8 @@
 				}).then(response => {
 					console.log(response.data);
 					this.$store.commit('posts/ADD_POST', response.data);
+					this.postTitle = '';
+					this.postContent = '';
 				}).catch(error => {
 					console.log(error);
 				});
@@ -87,53 +112,26 @@
 				    headers: { authorization: localStorage.getItem('jwt') }
 				}).then(response => {
 					console.log(response.data);
-					this.categoryId = response.data[0]._id;
-					this.categories = response.data;
+					if(response.data.length > 0) {
+						this.categoryId = response.data[0]._id;
+						this.categories = response.data;
+					}
 				}).catch(error => {
 					console.log(error);
 				});
 			},
-			// likePost(postId) {
-			// 	this.axios.post('http://localhost:3001/api/post/like', {
-			// 		post_id: postId
-			// 	}, {
-			// 	    headers: { authorization: localStorage.getItem('jwt') }
-			// 	}).then(response => {
-			// 		console.log(response);
-			// 		if(response.data.type == 'success') {
-			// 			this.$store.commit('posts/ADD_LIKE', {
-			// 				post_index: index,
-			// 				like: response.data.like
-			// 			});
-			// 		}
-			// 	}).catch(error => {
-			// 		console.log(error);
-			// 	});
-			// },
-
-			// dislikePost(postId, index) {
-			// 	this.axios.post('http://localhost:3001/api/post/dislike', {
-			// 		post_id: postId
-			// 	}, {
-			// 	    headers: { authorization: localStorage.getItem('jwt') }
-			// 	}).then(response => {
-			// 		console.log(response);
-			// 		if(response.data.type == 'success') {
-			// 			this.$store.commit('posts/REMOVE_LIKE', {
-			// 				post_index: index,
-			// 				postId: postId,
-			// 				userId: this.loggedUser._id
-			// 			});
-			// 		}
-			// 	}).catch(error => {
-			// 		console.log(error);
-			// 	});
-			// },
 			difForHumans(createdAt) {
 				return moment(createdAt).fromNow();
 			},
 			deletePost() {
-				
+				this.axios.delete('http://localhost:3001/api/post/delete?post='+this.postToBeDeleted._id,{
+				    headers: { authorization: localStorage.getItem('jwt') }
+				}).then(response => {
+					console.log(response);
+					this.posts.splice(this.posts.indexOf(this.postToBeDeleted), 1);
+				}).catch(error => {
+					console.log(error);
+				});
 			}
 		},
 

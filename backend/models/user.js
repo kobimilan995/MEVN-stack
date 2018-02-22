@@ -28,7 +28,11 @@ var UserSchema =  new mongoose.Schema({
 		required: true,
 		minlength: 6
 	},
-
+	//oni korisnici koji prate ovog korisnika
+	followers: [{
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'User'
+	}],
 	tokens: [{
 		access: {
 			type: String,
@@ -44,7 +48,7 @@ var UserSchema =  new mongoose.Schema({
 UserSchema.methods.toJSON = function() {
 	var user = this;
 	var userObject = user.toObject();
-	return _.pick(userObject, ['_id', 'email', 'username']);
+	return _.pick(userObject, ['_id', 'email', 'username', 'followers']);
 };
 
 UserSchema.methods.generateAuthToken = function() {
