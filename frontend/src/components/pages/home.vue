@@ -9,6 +9,12 @@
 	    <label for="exampleInputEmail1">Add post content</label>
 	    <textarea type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter post" v-model="postContent"></textarea>
 	  </div>
+	  <div class="form-group">
+	    <label for="exampleFormControlSelect1">Add category</label>
+	    <select class="form-control" id="exampleFormControlSelect1" v-model="categoryId">
+	      <option v-for="(category, index) in categories" :value="category._id">{{category.title}}</option>
+	    </select>
+	  </div>
 	  <button type="submit" class="btn btn-primary">Add post</button>
 	</form>
 	<i v-if="showLoading" class="fa fa-spinner fa-pulse fa-1x fa-fw"></i>
@@ -19,6 +25,7 @@
 		  	<h5>
 		  		{{post.title}}
 		  	</h5>
+		  	<p>Category: {{post.category.title}}</p>
 		  </div>
 		  <div class="card-footer">
 		  	<!-- <button v-if="!isLiked(post)" class="btn btn-primary" @click="likePost(post._id, index)">Like</button> 
@@ -38,7 +45,9 @@
 			return {
 				postContent: '',
 				postTitle: '',
-				showLoading: false
+				showLoading: false,
+				categories: [],
+				categoryId: ''
 			}
 		},
 		methods: {
@@ -46,10 +55,10 @@
 				this.$router.push('/post/'+post._id);
 			},
 			addPost() {
-				console.log('asd');
 				this.axios.post('http://localhost:3001/api/post', {
 					content: this.postContent,
-					title: this.postTitle
+					title: this.postTitle,
+					categoryId: this.categoryId
 				}, {
 				    headers: { authorization: localStorage.getItem('jwt') }
 				}).then(response => {
@@ -68,6 +77,18 @@
 					console.log(response.data);
 					this.$store.commit('posts/SET_POSTS', response.data);
 					this.showLoading = false;
+				}).catch(error => {
+					console.log(error);
+				});
+			},
+
+			getCategories() {
+				this.axios.get('http://localhost:3001/api/categories', {
+				    headers: { authorization: localStorage.getItem('jwt') }
+				}).then(response => {
+					console.log(response.data);
+					this.categoryId = response.data[0]._id;
+					this.categories = response.data;
 				}).catch(error => {
 					console.log(error);
 				});
@@ -127,6 +148,7 @@
 
 		created() {
 			this.getPosts();
+			this.getCategories();
 		}
 	}
 </script>

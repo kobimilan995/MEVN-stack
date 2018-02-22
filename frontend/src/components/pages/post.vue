@@ -9,6 +9,8 @@
 		  	<p>
 		  		{{post.content}}
 		  	</p>
+		  	<hr>
+		  	<p><small>Category: {{post.category.title}}</small></p>
 		  </div>
 		  <div class="card-footer">
 		  	<button v-if="!isLiked(post)" class="btn btn-primary" @click="likePost()">Like</button> 

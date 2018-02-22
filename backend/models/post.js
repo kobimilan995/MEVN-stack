@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 var {User} = require('../models/user');
-var {Like} = require('../models/like');
+var {Category} = require('../models/category');
 const _ = require('lodash');
 
 var PostSchema =  new mongoose.Schema({
@@ -16,6 +16,11 @@ var PostSchema =  new mongoose.Schema({
 	owner: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
+	},
+
+	category: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Category'
 	},
 
 	created_at: {

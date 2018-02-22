@@ -1,29 +1,35 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 var {User} = require('../models/user');
+var {Post} = require('../models/post');
 const _ = require('lodash');
 
-var LikeSchema =  new mongoose.Schema({
+var CategorySchema =  new mongoose.Schema({
+	title: {
+		required: true,
+		type: String
+	},
+	description: {
+		required: true,
+		type: String
+	},
 	created_at: {
 		required: true,
 		type: String
 	},
+
 	moment_timestamp: {
 		required: true,
 		type: String
 	},
-	owner: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'User'
-	},
 
-	post: {
+	posts: [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Post'
-	}
-});
-var Like = mongoose.model('Like', LikeSchema);
+	}]
+}, { usePushEach: true });
+var Category = mongoose.model('Category', CategorySchema);
 
 module.exports = {
-	Like
+	Category
 }
