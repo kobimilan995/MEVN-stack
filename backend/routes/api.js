@@ -1,6 +1,7 @@
 var {User} = require('../models/user');
 var {Post} = require('../models/post');
 var {Like} = require('../models/like');
+var {Category} = require('../models/category');
 var moment = require('moment');
 var ObjectID = require('mongodb').ObjectID;
 const _ = require('lodash');
@@ -30,28 +31,63 @@ module.exports = function(app){
             res.send(error);
         });
     });
+    //get posts for specific category
+    app.get('/api/post/categories', authenticate, (req, res) => {
+        Post.find({category: new ObjectID(req.query.category)}).populate('owner').then(response => {
+            res.send(response);
+        }).catch(error => {
+            console.log(error);
+        });
+    });
+    //get categories
+    app.get('/api/categories', authenticate, (req, res) => {
+        Category.find().then(response => {
+            res.send(response);
+        }).catch(error => {
+            res.send(error);
+        });
+    });
+    //add category
+    app.post('/api/category', authenticate, (req, res) => {
+        var body = _.pick(req.body, ['title', 'description']);
+        body.moment_timestamp = moment();
+        body.created_at = moment().format();
+        var category = new Category(body);
+        category.save().then(response => {
+            res.send({
+                type: 'success',
+                data: response
+            });
+        }).catch(error => {
+
+        });
+    });
     //add post
     app.post('/api/post', authenticate, (req, res) => {
-    	var body = _.pick(req.body, ['content', 'title']);
+
+    	var body = _.pick(req.body, ['content', 'title', 'categoryId']);
+        console.log(JSON.stringify(body, undefined, 2));
         // body.ownersName = req.user.username;
         // body.ownersId = req.user.id;
         body.owner = new ObjectID(req.user.id);
+        body.category = new ObjectID(body.categoryId);
         body.moment_timestamp = moment();
         body.created_at = moment().format();
     	var post = new Post(body);
+
     	post.save().then(response => {
-        Post.populate(post, 'owner').then(response => {
+            Post.populate(post, ['owner', 'category']).then(response => {
                 res.send(response);
             }).catch(error => {
                 res.send(error)
             })
     	}).catch(error => {
-
+            res.send(error);
     	});
     });
     //get post
     app.get('/api/post', authenticate, (req, res) => {
-        Post.findById(req.query.post).populate('owner').then(response => {
+        Post.findById(req.query.post).populate('owner').populate('category').then(response => {
             res.send(response);
         }).catch(error => {
             console.log(error);
@@ -59,7 +95,7 @@ module.exports = function(app){
     });
     //get posts
     app.get('/api/posts', authenticate, (req, res) => {
-        var posts = Post.find().populate('owner').sort({moment_timestamp: -1}).then(response => {
+        var posts = Post.find().populate('owner').populate('category').sort({moment_timestamp: -1}).then(response => {
             res.send(response);
         }).catch(error => {
             console.log(error);

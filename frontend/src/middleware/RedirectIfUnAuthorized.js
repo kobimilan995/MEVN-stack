@@ -3,7 +3,7 @@ export default function RedirectIfUnAuthorized(router) {
 		console.log('asd',to.meta.auth);
 		let token = localStorage.getItem('jwt');
 		if((!token) && (to.meta.auth == true)) {
-			next({path: '/home'});
+			next({path: '/login'});
 		} else {
 			next();	
 		}	

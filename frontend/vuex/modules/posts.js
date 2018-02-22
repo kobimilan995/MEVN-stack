@@ -1,5 +1,6 @@
 const state = {
-	posts: []
+	posts: [],
+	categories: []
 };
 
 const mutations = {
@@ -36,6 +37,9 @@ const mutations = {
 
 	SET_POSTS(state, posts) {
 		state.posts = posts;
+	},
+	SET_CATEGORIES(state, categories) {
+		state.categories = categories;
 	},
 
 	SPLICE_POST(state, post) {
