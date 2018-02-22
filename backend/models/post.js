@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 var {User} = require('../models/user');
 var {Category} = require('../models/category');
-var {Like} = require('../models/like');
 const _ = require('lodash');
 
 var PostSchema =  new mongoose.Schema({

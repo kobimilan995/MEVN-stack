@@ -1,6 +1,5 @@
 var {User} = require('../models/user');
 var {Post} = require('../models/post');
-var {Like} = require('../models/like');
 var {Category} = require('../models/category');
 var moment = require('moment');
 var ObjectID = require('mongodb').ObjectID;
@@ -123,22 +122,6 @@ module.exports = function(app){
         }).catch(error => {
             res.send(error);
         });
-        // console.log(req.body);
-        // var body = {};
-        // body.moment_timestamp = moment();
-        // body.created_at = moment().format();
-        // var like = new Like(body);
-        // like.owner = new ObjectID(req.user.id);
-        // like.post = new ObjectID(req.body.post_id);
-        // like.save().then(response => {
-            
-        // }).catch(error => {
-        //     res.send({
-        //         type: 'error',
-        //         message: 'ERROR',
-        //         error: error
-        //     });
-        // })
     });
 
     //unlike post
