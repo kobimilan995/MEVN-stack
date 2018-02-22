@@ -10,12 +10,27 @@ module.exports = function(app){
     	console.log(JSON.stringify(req, undefined, 2));
         res.send(req.query.post);
     });
+    //get logged users followers
+    app.get('/api/user/', authenticate, (req,res) => {
+        User.findOne({_id: req.user._id}).populate('followers').populate('following').then(user => {
+            res.send(user);
+        }).catch(error => {
+            res.send(error);
+        });
+    });
     //follow user
     app.post('/api/user/follow', authenticate, (req, res) => {
         User.findOne({_id: req.body.user}).populate('followers').then(user => {
             user.followers.push(req.user._id);
             user.save().then(response => {
-                res.send(user);
+                User.findOne({_id: req.user._id}).then(loggedUser => {
+                    loggedUser.following.push(new ObjectID(req.body.user));
+                    loggedUser.save().then(response => {
+                        res.send(response);
+                    });
+                }).catch(finalError => {
+                    res.send(finalError);
+                });
             }).catch(error => {
                 res.send(error);
             });
@@ -27,9 +42,16 @@ module.exports = function(app){
     //uollow user
     app.post('/api/user/unfollow', authenticate, (req, res) => {
         User.findOne({_id: req.body.user}).populate('followers').then(user => {
-            user.followers.push(req.user._id);
+            user.followers.splice(req.user._id);
             user.save().then(response => {
-                res.send(user);
+                User.findOne({_id: req.user._id}).then(loggedUser => {
+                    loggedUser.following.splice(req.body.user);
+                    loggedUser.save().then(response => {
+                        res.send(response);
+                    });
+                }).catch(finalError => {
+                    res.send(finalError);
+                });
             }).catch(error => {
                 res.send(error);
             });

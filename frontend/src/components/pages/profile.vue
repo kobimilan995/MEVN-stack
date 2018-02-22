@@ -1,21 +1,17 @@
 <template>
 	<div>
-		<h1>Users</h1>
-		<div>
-			<template v-for="(user, index) in users" >
-				<div v-if="user._id != loggedUser._id" class="card" style="margin-top: 15px;">
-				  <div class="card-header"><h3 style="display: inline;">Email: {{user.email}}</h3></div>
-				  <div class="card-body">
-				  	<h5>
-				  		Name: {{user.username}}
-				  	</h5>
-				  </div>
-				  <div class="card-footer">
-				  	<button v-if="!isFollowed(user)" class="btn btn-primary" @click="follow(user)">Follow</button>
-				  	<button v-else class="btn btn-primary" @click="unfollow(user)">Unfollow</button>
-				  </div>
-				</div>
-			</template>
+		<h1>Your followers</h1>
+		<div v-for="(user, index) in followers" class="card" style="margin-top: 15px;">
+		  <div class="card-header"><h3 style="display: inline;">{{user.email}}</h3></div>
+		  <div class="card-body">
+		  	<h5>
+		  		{{user.username}}
+		  	</h5>
+		  </div>
+		  <div class="card-footer">
+			  	<button v-if="!isFollowed(user)" class="btn btn-primary" @click="follow(user)">Follow</button>
+			  	<button v-else class="btn btn-primary" @click="unfollow(user)">Unfollow</button>
+		  </div>
 		</div>
 	</div>
 </template>
@@ -24,30 +20,31 @@
 	export default {
 		data() {
 			return {
-				showLoading: false,
-				users: []
+				followers: [],
+				following: [],
+				showLoading: false
 			}
 		},
-
 		methods: {
-			getUsers() {
+			getFollowers() {
 				this.showLoading = true;
-				this.axios.get('http://localhost:3001/api/users', {
+				this.axios.get('http://localhost:3001/api/user', {
 				    headers: { authorization: localStorage.getItem('jwt') }
 				}).then(response => {
 					console.log(response.data);
-					this.users = response.data;
+					this.followers = response.data.followers;
+					this.following = response.data.following;
 				}).catch(error => {
 					console.log(error);
 				});
-
 			},
 			isFollowed(user) {
 				var returnValue = false;
-				user.followers.forEach(follower => {
-					if(follower._id == this.loggedUser._id) {
+				this.following.forEach(followingUser => {
+					if(followingUser._id == user._id) {
 						returnValue = true;
 					}
+					console.log('this following', this.following);
 				});
 				return returnValue;
 			},
@@ -58,7 +55,7 @@
 				    headers: { authorization: localStorage.getItem('jwt') }
 				}).then(response => {
 					console.log(response.data);
-					user.followers.push(this.loggedUser);
+					this.following.push(user);
 				}).catch(error => {
 					console.log(error);
 				});
@@ -71,12 +68,7 @@
 				    headers: { authorization: localStorage.getItem('jwt') }
 				}).then(response => {
 					console.log(response.data);
-					for (var i = 0; i < user.followers.length; i++) {
-						if(this.loggedUser._id == user.followers[i]._id) {
-							user.followers.splice(i, 1);
-							break;
-						}
-					}
+					this.following.splice(user);
 				}).catch(error => {
 					console.log(error);
 				});
@@ -84,9 +76,13 @@
 		},
 
 		created() {
-			this.getUsers();
+			this.getFollowers();
 		},
 
+		mounted() {
+
+			console.log(this.loggedUser);
+		},
 		computed: {
 			loggedUser() {
 				return JSON.parse(localStorage.getItem('authUser'));

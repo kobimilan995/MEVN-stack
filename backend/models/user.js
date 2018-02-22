@@ -33,6 +33,10 @@ var UserSchema =  new mongoose.Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
 	}],
+	following: [{
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'User'
+	}],
 	tokens: [{
 		access: {
 			type: String,
@@ -48,7 +52,7 @@ var UserSchema =  new mongoose.Schema({
 UserSchema.methods.toJSON = function() {
 	var user = this;
 	var userObject = user.toObject();
-	return _.pick(userObject, ['_id', 'email', 'username', 'followers']);
+	return _.pick(userObject, ['_id', 'email', 'username', 'followers', 'following']);
 };
 
 UserSchema.methods.generateAuthToken = function() {
@@ -76,7 +80,7 @@ UserSchema.methods.removeToken = function(token) {
 UserSchema.statics.findByCredentials = function(email, password) {
 	var User = this;
 
-	return User.findOne({email}).then(user => {
+	return User.findOne({email}).populate('followers').populate('following').then(user => {
 		if(!user) {
 			return Promise.reject();
 		}
@@ -106,7 +110,7 @@ UserSchema.statics.findByToken = function(token) {
 		'_id': decoded._id,
 		'tokens.token': token,
 		'tokens.access': 'auth'
-	});
+	}).populate('followers').populate('following');
 
 };
 
