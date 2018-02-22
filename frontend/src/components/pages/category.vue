@@ -2,6 +2,9 @@
 	<div>
 		<i v-if="showLoading" class="fa fa-spinner fa-pulse fa-1x fa-fw"></i>
 		<div>
+			<h1>
+				{{category.title}}
+			</h1>
 			<div v-for="(post, index) in posts" class="card" style="margin-top: 15px;">
 			  <div class="card-header"><h3 style="display: inline;">{{post.owner.email}}</h3> <a href="#"><i class="fa fa-close pull-right" @click="deletePost"></i></a></div>
 			  <div class="card-body">
@@ -26,6 +29,7 @@
 		data() {
 			return {
 				posts: [],
+				category: {},
 				showLoading: false
 			}
 		},
@@ -43,9 +47,18 @@
 				    }
 				}).then(response => {
 					console.log(response.data);
+					this.posts = response.data.posts;
+					this.category = response.data.category;
 				}).catch(error => {
 					console.log(error);
 				});
+			},
+
+			deletePost() {
+
+			},
+			viewMore(post) {
+				this.$router.push('/post/'+post._id);
 			}
 		},
 

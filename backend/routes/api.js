@@ -32,10 +32,17 @@ module.exports = function(app){
     });
     //get posts for specific category
     app.get('/api/post/categories', authenticate, (req, res) => {
-        Post.find({category: new ObjectID(req.query.category)}).populate('owner').then(response => {
-            res.send(response);
+        Category.findById(req.query.category).then(category => {
+            Post.find({category: new ObjectID(req.query.category)}).populate('owner').then(response => {
+                res.send({
+                    posts: response,
+                    category: category
+                });
+            }).catch(error => {
+                console.log(error);
+            });
         }).catch(error => {
-            console.log(error);
+
         });
     });
     //get categories
